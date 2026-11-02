@@ -8,14 +8,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Theos
+      - name: Install Theos & iOS 9.3 SDK
         run: |
           git clone --recursive https://github.com/theos/theos.git ~/theos
+          curl -fsSL -o ~/theos/sdks/iPhoneOS9.3.sdk.tar.xz https://github.com/xybp888/iOS-SDKs/raw/master/iPhoneOS9.3.sdk.tar.xz
+          tar -xf ~/theos/sdks/iPhoneOS9.3.sdk.tar.xz -C ~/theos/sdks
+          rm ~/theos/sdks/iPhoneOS9.3.sdk.tar.xz
           echo "THEOS=~/theos" >> $GITHUB_ENV
 
       - name: Build Package
         run: |
-          make package FINALPACKAGE=1 THEOS_DEVICE_ARCHS="arm64"
+          make package FINALPACKAGE=1 TARGET=iphone:clang:9.3:8.0 THEOS_DEVICE_ARCHS="armv7 arm64" ADDITIONAL_LDFLAGS="-Wl,-ld_classic"
 
       - name: Upload Deb
         uses: actions/upload-artifact@v4
