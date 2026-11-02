@@ -8,6 +8,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Install Tools (ldid & dpkg)
+        run: |
+          brew install ldid dpkg
+
       - name: Install Theos & Patched SDKs
         run: |
           git clone --recursive https://github.com/theos/theos.git ~/theos
@@ -17,9 +21,7 @@ jobs:
 
       - name: Build Package
         run: |
-          if [ -d "$HOME/theos/sdks/iPhoneOS9.3.sdk" ]; then
-            make package FINALPACKAGE=1 TARGET=iphone:clang:9.3:8.0 || (make clean && make package FINALPACKAGE=1 THEOS_DEVICE_ARCHS="arm64" ARCHS="arm64")
-          elif [ -d "$HOME/theos/sdks/iPhoneOS10.3.sdk" ]; then
+          if [ -d "$HOME/theos/sdks/iPhoneOS10.3.sdk" ]; then
             make package FINALPACKAGE=1 TARGET=iphone:clang:10.3:8.0 || (make clean && make package FINALPACKAGE=1 THEOS_DEVICE_ARCHS="arm64" ARCHS="arm64")
           else
             make package FINALPACKAGE=1 THEOS_DEVICE_ARCHS="arm64" ARCHS="arm64"
