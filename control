@@ -1,0 +1,9 @@
+Package: com.timefix.daemon
+Name: TimeFix
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: Keeps the date/time correct by syncing from NTP (fixes wrong date on old iPhones)
+Maintainer: Your Name <you@example.com>
+Author: Your Name <you@example.com>
+Section: System
+Depends: firmware (>= 8.0)
