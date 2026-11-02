@@ -11,12 +11,13 @@ jobs:
       - name: Install Theos & Patched SDKs
         run: |
           git clone --recursive https://github.com/theos/theos.git ~/theos
+          rm -rf ~/theos/sdks
           git clone --depth=1 https://github.com/theos/sdks.git ~/theos/sdks
           echo "THEOS=~/theos" >> $GITHUB_ENV
 
       - name: Build Package
         run: |
-          make package FINALPACKAGE=1 TARGET=iphone:clang:14.5:8.0 THEOS_DEVICE_ARCHS="armv7 arm64"
+          make package FINALPACKAGE=1 TARGET=iphone:clang::8.0 THEOS_DEVICE_ARCHS="armv7 arm64"
 
       - name: Upload Deb
         uses: actions/upload-artifact@v4
