@@ -3,7 +3,7 @@ on: [push, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -16,7 +16,7 @@ jobs:
 
       - name: Build Package
         run: |
-          make package FINALPACKAGE=1 TARGET=iphone:clang:11.4:8.0
+          make package FINALPACKAGE=1 TARGET=iphone:clang:14.5:8.0 THEOS_DEVICE_ARCHS="armv7 arm64"
 
       - name: Upload Deb
         uses: actions/upload-artifact@v4
