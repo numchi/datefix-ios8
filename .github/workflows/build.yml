@@ -8,16 +8,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Theos & Patched SDKs
+      - name: Install Theos
         run: |
           git clone --recursive https://github.com/theos/theos.git ~/theos
-          rm -rf ~/theos/sdks
-          git clone --depth=1 https://github.com/theos/sdks.git ~/theos/sdks
           echo "THEOS=~/theos" >> $GITHUB_ENV
 
       - name: Build Package
         run: |
-          make package FINALPACKAGE=1 TARGET=iphone:clang::8.0 THEOS_DEVICE_ARCHS="armv7 arm64"
+          make package FINALPACKAGE=1 THEOS_DEVICE_ARCHS="arm64"
 
       - name: Upload Deb
         uses: actions/upload-artifact@v4
