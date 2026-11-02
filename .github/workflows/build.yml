@@ -8,17 +8,22 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Theos & iOS 9.3 SDK
+      - name: Install Theos & Patched SDKs
         run: |
           git clone --recursive https://github.com/theos/theos.git ~/theos
-          curl -fsSL -o ~/theos/sdks/iPhoneOS9.3.sdk.tar.xz https://github.com/xybp888/iOS-SDKs/raw/master/iPhoneOS9.3.sdk.tar.xz
-          tar -xf ~/theos/sdks/iPhoneOS9.3.sdk.tar.xz -C ~/theos/sdks
-          rm ~/theos/sdks/iPhoneOS9.3.sdk.tar.xz
+          rm -rf ~/theos/sdks
+          git clone --depth=1 https://github.com/theos/sdks.git ~/theos/sdks
           echo "THEOS=~/theos" >> $GITHUB_ENV
 
       - name: Build Package
         run: |
-          make package FINALPACKAGE=1 TARGET=iphone:clang:9.3:8.0 THEOS_DEVICE_ARCHS="armv7 arm64" ADDITIONAL_LDFLAGS="-Wl,-ld_classic"
+          if [ -d "$HOME/theos/sdks/iPhoneOS9.3.sdk" ]; then
+            make package FINALPACKAGE=1 TARGET=iphone:clang:9.3:8.0 || (make clean && make package FINALPACKAGE=1 THEOS_DEVICE_ARCHS="arm64" ARCHS="arm64")
+          elif [ -d "$HOME/theos/sdks/iPhoneOS10.3.sdk" ]; then
+            make package FINALPACKAGE=1 TARGET=iphone:clang:10.3:8.0 || (make clean && make package FINALPACKAGE=1 THEOS_DEVICE_ARCHS="arm64" ARCHS="arm64")
+          else
+            make package FINALPACKAGE=1 THEOS_DEVICE_ARCHS="arm64" ARCHS="arm64"
+          fi
 
       - name: Upload Deb
         uses: actions/upload-artifact@v4
