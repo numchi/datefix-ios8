@@ -21,10 +21,10 @@
 #include <notify.h>
 #endif
 
-#define NTP_UNIX_DELTA   2208988800LL
+#define NTP_UNIX_DELTA   2208988800.0
 #define THRESHOLD_SEC    5.0
 #define MAX_RTT_SEC      3.0
-#define MIN_VALID_UNIX   1700000000LL   /* reject server times before Nov 2023 */
+#define MIN_VALID_UNIX   1700000000.0   /* reject server times before Nov 2023 */
 
 static const char *servers[] = {
     "time.apple.com", "time.google.com", "time.cloudflare.com", "pool.ntp.org", NULL
@@ -79,10 +79,11 @@ static int query(const char *host, double *out) {
             if (n == (ssize_t)sizeof r) {
                 int mode = r.li_vn_mode & 7;
                 int li   = r.li_vn_mode >> 6;
-                int64_t secs = (int64_t)ntohl(r.tx_ts[0]);
-                uint32_t frac = ntohl(r.tx_ts[1]);
-                if (secs < NTP_UNIX_DELTA) secs += 4294967296LL;  /* NTP era 1 */
-                double t3 = (double)(secs - NTP_UNIX_DELTA) + frac / 4294967296.0;
+                /* doubles only: avoids 64-bit int helpers missing from new Xcode on armv7 */
+                double secs = (double)ntohl(r.tx_ts[0]);
+                double frac = (double)ntohl(r.tx_ts[1]);
+                if (secs < NTP_UNIX_DELTA) secs += 4294967296.0;  /* NTP era 1 */
+                double t3 = (secs - NTP_UNIX_DELTA) + frac / 4294967296.0;
                 double rtt = t4 - t1;
 
                 if (mode == 4 && li != 3 && r.stratum > 0 && r.stratum < 16 &&

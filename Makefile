@@ -1,5 +1,8 @@
-ARCHS = armv7 armv7s
-TARGET = iphone:clang:latest:5.0
+ARCHS = armv7
+TARGET = iphone:clang:10.3:8.0
+
+# gzip data.tar for old dpkg on iOS 8 (newer dpkg defaults to zstd, which iOS 8 can't read)
+_THEOS_PLATFORM_DPKG_DEB_COMPRESSION = gzip
 
 include $(THEOS)/makefiles/common.mk
 

@@ -1,0 +1,37 @@
+name: Build Tweak
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Tools (ldid & dpkg)
+        run: brew install ldid dpkg
+
+      - name: Install Theos & SDKs
+        run: |
+          git clone --recursive https://github.com/theos/theos.git "$HOME/theos"
+          rm -rf "$HOME/theos/sdks"
+          git clone --depth=1 https://github.com/theos/sdks.git "$HOME/theos/sdks"
+          echo "THEOS=$HOME/theos" >> "$GITHUB_ENV"
+          ls "$HOME/theos/sdks"
+
+      - name: Fix script permissions
+        run: chmod 755 layout/DEBIAN/*
+
+      - name: Build Package
+        run: make package FINALPACKAGE=1
+
+      - name: Show .deb contents
+        run: |
+          ls -l packages/
+          for f in packages/*.deb; do ar t "$f"; done
+
+      - name: Upload Deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: tweak-deb
+          path: packages/*.deb
